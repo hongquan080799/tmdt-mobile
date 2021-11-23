@@ -1,9 +1,94 @@
-import React from 'react'
+import React,{useContext} from 'react'
 import { TouchableOpacity } from 'react-native';
-import { View , Text, SafeAreaView, Image, StyleSheet, TextInput} from 'react-native'
+import { View , Text, SafeAreaView, Image, StyleSheet, TextInput, Alert} from 'react-native'
 import { Button } from 'react-native-elements';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
+import firebase from 'firebase';
+import { AntDesign } from '@expo/vector-icons';
+import {auth} from '../firebase'
+import * as Facebook from 'expo-facebook';
+import * as Google from 'expo-google-app-auth';
+import * as UserApi from '../api/UserApi'
+import { useNavigation } from '@react-navigation/core';
+import { UserContext } from '../context/UserContext';
 export default function LoginScreen() {
+    const [state,setState] = useContext(UserContext)
+    const navigation = useNavigation()
+    const handleLoginGoogle = async ()=>{
+        try {
+            const result = await Google.logInAsync({
+            //   androidClientId: YOUR_CLIENT_ID_HERE,
+              behavior:'web',
+              iosClientId: '808049707471-eadsuhatnmkt5t4cokja1b1lb4d6huql.apps.googleusercontent.com',
+              scopes: ['profile', 'email'],
+            });
+        
+            if (result.type === 'success') {
+                //return result.accessToken;
+              UserApi.getLoginGoogle(result.accessToken)
+              .then(res =>{
+                  UserApi.getUser()
+                  .then(res =>{
+                      UserApi.getUser()
+                      .then(response =>{
+                        console.log(response)
+                        setState({user:response})
+                        navigation.navigate('Home', {screen:'home'})
+                      })
+
+                  })
+                
+              })
+              .catch(err => alert('Login failed !!!'))
+
+            } else {
+              return { cancelled: true };
+            }
+          } catch (e) {
+            return { error: true };
+          }
+    }
+    const handleLoginFacebook = async()=>{
+        try {
+            await Facebook.initializeAsync({
+              appId: '419313262930085',
+            });
+            const {
+              type,
+              token,
+              expirationDate,
+              permissions,
+              declinedPermissions,
+            } = await Facebook.logInWithReadPermissionsAsync({
+              permissions: ['public_profile'],
+            });
+            if (type === 'success') {
+              // Get the user's name using Facebook's Graph API
+             // const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
+              //Alert.alert('Logged in!', `Hi ${(await response.json()).name}!`);
+              UserApi.getLoginFacebook(token)
+              .then(res =>{
+                  UserApi.getUser()
+                  .then(res =>{
+                      UserApi.getUser()
+                      .then(response =>{
+                        console.log(response)
+                        setState({user:response})
+                        navigation.navigate('Home', {screen:'home'})
+                      })
+
+                  })
+                
+              })
+              .catch(err => alert('Login failed !!!'))
+
+            } else {
+              // type === 'cancel'
+            }
+          } catch ({ message }) {
+            alert(`Facebook Login Error: ${message}`);
+          }
+    }
     return (
         <SafeAreaView>
             <View style={{flexDirection:'row', justifyContent:'center', marginTop:'10%', marginBottom:'15%'}}>
@@ -34,16 +119,19 @@ export default function LoginScreen() {
     
                 <Button
                 title="Login by Google"
+                onPress={handleLoginGoogle}
                 buttonStyle={{
                     marginTop:13,
                     backgroundColor:'#F24529',
                     borderRadius:20,
                     height:45,
                     marginBottom:10
-                }}                
+                }}    
+                icon={<AntDesign name="google" size={22} color='white' style={{marginRight:5}} />}            
                 />
                 <Button
                 title="Login by Facebook"
+                onPress={handleLoginFacebook}
                 icon={
                     <Icon name='facebook' color='white' style={{marginRight:5}} />
                 }

@@ -1,14 +1,14 @@
 import React from 'react'
 import { View, Image, Text, StyleSheet, TouchableOpacity} from 'react-native'
 
-export default function Item({navigation}) {
+export default function Item({navigation, product}) {
     return (
-        <TouchableOpacity style={styles.item} onPress={()=> navigation.navigate('Detail')}>
-            <Image style={styles.itemPicture} source={{uri:'https://images.fpt.shop/unsafe/fit-in/214x214/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/10/1/637686973775896947_ip-12-dd.jpg'}} />
-            <Text style={styles.itemText}>Iphone 12 64 GB</Text>
+        <TouchableOpacity style={styles.item} onPress={()=> navigation.navigate('detail',{product})}>
+            <Image style={styles.itemPicture} source={{uri: product?.listHA[0]?.photo}} />
+            <Text style={styles.itemText}>{product?.tensp}</Text>
             <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-                 <Text style={styles.itemPrice}>1000 $</Text>
-                 <Text style={styles.itemDiscount}>-10%</Text>
+                 <Text style={styles.itemPrice}>{product?.dongia} $</Text>
+                 <Text style={styles.itemDiscount}>-{product?.khuyenmai * 100}%</Text>
             </View>
         </TouchableOpacity>
     )
@@ -17,7 +17,7 @@ export default function Item({navigation}) {
 const styles = StyleSheet.create({
     item:{
         width:'45%',
-        backgroundColor:'#e6e6e6',
+        backgroundColor:'white',
         marginBottom:18,
         borderRadius:10,
         padding:10

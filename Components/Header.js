@@ -1,12 +1,21 @@
 import React from 'react'
 import { Icon } from 'react-native-elements'
-import { View, Text , TextInput, StyleSheet, Image} from 'react-native'
+import { View, Text , TextInput, StyleSheet, Image, TouchableOpacity} from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 export default function Header() {
+    const navigation = useNavigation()
     return (
         <View style={styles.headerContainer}>
-            <View style={{flexDirection:'row'}}>
-                <Text style={styles.logo}>Angry Bird</Text>
-                <Image source={{uri:'https://img.icons8.com/fluent/96/000000/hummingbird.png'}} style={styles.photoPicture} />
+            <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                <View style={{flexDirection:'row'}}>
+                    <Text style={styles.logo}>Angry Bird</Text>
+                    <Image source={{uri:'https://img.icons8.com/fluent/96/000000/hummingbird.png'}} style={styles.photoPicture} />
+                </View>
+                <Text>
+                    <TouchableOpacity onPress={()=> navigation.navigate('cart',{screen:'Cart'})}>
+                        <Icon name="shopping-cart" size={28} color = '#404040' />
+                    </TouchableOpacity>
+                </Text>
             </View>
             <View style={styles.searchContainer}>
                 <Icon name="search" size={25} />

@@ -1,43 +1,39 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import HomeStack from './Stacks/HomeStack';
 import { StyleSheet, Text, View } from 'react-native';
-import SettingScreen from './Screens/SettingScreen';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import DetailProductScreen from './Screens/DetailProductScreen';
+import LoginStack from './Stacks/LoginStack'
+import HomeTab from './Tabs/HomeTab';
+import { Icon } from 'react-native-elements';
+import {TouchableOpacity} from 'react-native'
+import GoBack from './Components/GoBack';
 import CartStack from './Stacks/CartStack';
-import { Icon } from 'react-native-elements'
-import LoginStack from './Stacks/LoginStack';
+import HeaderRight from './Components/HeaderRight';
+import {UserProvider} from './context/UserContext'
 export default function App() {
-  const Tabs = createBottomTabNavigator()
+
+  const Stack = createNativeStackNavigator()
   return (
-    <NavigationContainer>
-      {/* <Tabs.Navigator>
-        <Tabs.Screen name="Home"
-         component={HomeStack}
-         options={{
-           tabBarIcon: ()=> <Icon name="home" color='#5F6368' />,
-           tabBarActiveTintColor:'#5F6368',
-           headerShown:false
-          }} />
-          <Tabs.Screen name="Cart"
-         component={CartStack}
-         options={{
-          tabBarIcon: ()=> <Icon name="shopping-cart" color='#5F6368' />,
-          headerShown:false,
-          tabBarActiveTintColor:'#5F6368'
-         }} 
-         />
-        <Tabs.Screen name="Setting"
-         component={SettingScreen}
-         options={{
-          tabBarIcon: ()=> <Icon name="settings" color='#5F6368' />,
-          tabBarActiveTintColor:'#5F6368'
-         }} 
-         />
-      </Tabs.Navigator> */}
-      <LoginStack />
+    <UserProvider>
+      <NavigationContainer>
+      <Stack.Navigator screenOptions={{headerShown:false}}>
+        <Stack.Screen name="home" component={HomeTab} />
+        <Stack.Screen name="login" component={LoginStack} />
+        <Stack.Screen name="cart" component={CartStack} />
+        <Stack.Screen name="detail" component={DetailProductScreen} 
+        options={{
+          headerLeft:GoBack,
+          headerTransparent:true,
+          headerTintColor:'white',
+          headerShown:true,
+          headerTitle:'',
+          headerRight: HeaderRight
+        }}
+          />
+      </Stack.Navigator>
     </NavigationContainer>
+    </UserProvider>
   );
 }
 

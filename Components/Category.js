@@ -24,12 +24,12 @@ export default function Category({items}) {
 const styles = StyleSheet.create({
     category :{
         flexDirection:'row',
-        marginBottom:25
     },
     categoryText:{
         fontSize:20,
         color:'#696969',
-        paddingHorizontal:10
+        paddingHorizontal:10,
+        paddingBottom:10
     },
     categorySelected:{
         fontSize:22,
