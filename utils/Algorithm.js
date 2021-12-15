@@ -53,8 +53,8 @@ export const getSignature = async(order, totalPrice, orderId)=>{
     var requestId =  orderId;
     var orderId = orderId;
     var orderInfo = "Angry Bird order payment";
-    var redirectUrl = "exp://192.168.1.8:19000";
-    var ipnUrl = "exp://192.168.1.8:19000";
+    var redirectUrl = "exp://192.168.1.10:19000";
+    var ipnUrl = "exp://192.168.1.10:19000";
     // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
     var amount = totalPrice * 22000;
     var requestType = "captureWallet"

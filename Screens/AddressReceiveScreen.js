@@ -167,7 +167,8 @@ export default function AddressReceiveScreen() {
                     <RadioForm
                         radio_props={state?.user?.listDC?.map(dc=>{
                             return {
-                            label: <View style={styles.addressPicker}>
+                            label: 
+                            <View style={styles.addressPicker}>
                                 <Text style={{width:'95%'}}>{getHomeAddress(dc)}</Text>
                                 <Text><TouchableOpacity onPress={()=> onDeleteShipAddress(dc?.id)}><Icon name="delete" color='#616161' /></TouchableOpacity></Text>
                             </View>
@@ -225,7 +226,15 @@ export default function AddressReceiveScreen() {
                         borderColor:'black',
                         borderBottomWidth:1,
                         paddingVertical:5
-                    }
+                    },
+                    inputAndroid:{
+                        fontSize:18,
+                        borderColor:'black',
+                        borderBottomWidth:1,
+                        paddingVertical:5,
+                        color:'black'
+                    },
+
                 }}
                 items={list?.provice?.map(pv =>{
                     return{
@@ -245,6 +254,13 @@ export default function AddressReceiveScreen() {
                         borderColor:'black',
                         borderBottomWidth:1,
                         paddingVertical:5
+                    },
+                    inputAndroid:{
+                        fontSize:18,
+                        borderColor:'black',
+                        borderBottomWidth:1,
+                        paddingVertical:5,
+                        color:'black'
                     }
                 }}
                 items={list?.district?.map(pv =>{
@@ -265,6 +281,13 @@ export default function AddressReceiveScreen() {
                         borderColor:'black',
                         borderBottomWidth:1,
                         paddingVertical:5
+                    },
+                    inputAndroid:{
+                        fontSize:18,
+                        borderColor:'black',
+                        borderBottomWidth:1,
+                        paddingVertical:5,
+                        color:'black'
                     }
                 }}
                 items={list?.ward?.map(pv =>{

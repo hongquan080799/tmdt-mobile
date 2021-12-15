@@ -17,6 +17,7 @@ export default function DetailProductScreen({route}) {
             try {
                 const res = await giohangApi.getGioHangByMakh()
                 setList(res)
+                
             } catch (error) {
                 alert('Some thing happen')
             }

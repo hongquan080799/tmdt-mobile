@@ -5,7 +5,9 @@ import { CheckBox } from 'react-native-elements/dist/checkbox/CheckBox'
 import NumericInput from 'react-native-numeric-input'
 import { UserContext } from '../context/UserContext'
 import * as giohangApi from '../api/GiohangApi'
+import { useIsFocused } from '@react-navigation/core'
 export default function CartScreen({navigation}) {
+    const isFocused = useIsFocused()
     const [state, setState] = useContext(UserContext)
     const [cart, setCart] = useState([])
     useEffect(()=>{
@@ -30,7 +32,7 @@ export default function CartScreen({navigation}) {
             fetchData()
             
         }
-    },[])
+    },[isFocused])
     const getHomeAddress = ()=>{
         for(let i = 0; i < state?.user?.listDC.length ; i++){
             console.log(state?.user?.listDC)

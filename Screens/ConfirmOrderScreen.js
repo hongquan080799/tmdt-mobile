@@ -1,12 +1,13 @@
 import React,{useState, useEffect, useContext} from 'react'
-import { Text, View, Image, StyleSheet, Button, TextInput, ScrollView , TouchableOpacity} from 'react-native'
+import { Text, View, Image, StyleSheet, TextInput, ScrollView , TouchableOpacity} from 'react-native'
 import * as Linking from 'expo-linking';
-import { Icon } from 'react-native-elements'
+import { Icon, Input, Button } from 'react-native-elements'
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
 import { CheckBox } from 'react-native-elements/dist/checkbox/CheckBox'
 import { UserContext } from '../context/UserContext';
 import { useNavigation } from '@react-navigation/core'
 import {getSignature, getExtraData} from '../utils/Algorithm'
+import * as paypalUtils from '../utils/PaypalUtils'
 import * as ghnApi from '../api/GhnApi'
 import * as donhangApi from '../api/DonhangApi'
 import * as emailUtils from '../utils/SendEmail'
@@ -16,6 +17,8 @@ export default function ConfirmOrderScreen({route}) {
     const navigation = useNavigation()
     const [state, setState] = useContext(UserContext)
     const [httt, setHttt] = useState(0)
+    const [discount, setDiscount] = useState(0)
+    const [voucher, setVoucher] = useState()
     const getShioAddress = ()=>{
         for(let i = 0; i < state?.user?.listDC.length ; i++){
            // console.log(state?.user?.listDC)
@@ -30,20 +33,32 @@ export default function ConfirmOrderScreen({route}) {
         Linking.addEventListener('url', async(event)=>{
             let data = Linking.parse(event.url)
             let orderConfirm = JSON.parse(getExtraData(data.queryParams.extraData))
-            // let resGHN = null
-            // // try{
-            // //     resGHN = await ghnApi.getOrderGHN(orderConfirm, state?.user, getAddress(), getTotalPrice() )
-            // // }
-            // // catch(e){}
+            let resGHN = null
+            try{
+                resGHN = await ghnApi.getOrderGHN(orderConfirm, state?.user, getAddress(), getTotalPrice() )
+            }
+            catch(e){}
             
-            // // if(resGHN != null)
-            // // orderRequest.madhGhn = data?.order_code
-
+            if(resGHN != null)
+            orderRequest.madhGhn = data?.order_code
+            if(discount > 0 )
+            confirmOrder.voucherId = voucher
             try {
-                await donhangApi.order(orderConfirm)
-                // const myMessage = emailUtils.getMessageOrder(state?.user, listSP, getShioAddress)
+                if(httt == 1){
+                    let payerId = data?.queryParams.PayerID
+                    donhangApi.orderPaypal(confirmOrder, payerId)
+                }
+                else if(httt == 2){
+                    await donhangApi.order(orderConfirm)
+                
+                }
+                try {
+                    const myMessage = emailUtils.getMessageOrder(state?.user, listSP, getShioAddress)
 
-                // emailUtils.sendEmail(myMessage, state?.user)
+                    emailUtils.sendEmail(myMessage, state?.user)
+                } catch (error) {
+                    
+                }
                 alert('Order successfully !!!')
             } catch (error) {
                 console.log(error)
@@ -88,14 +103,42 @@ export default function ConfirmOrderScreen({route}) {
         }
         const orderId = 'DH' + new Date().getTime()
         try {
-            const res = await getSignature(orderRequest, getTotalPrice(), orderId)
-            await WebBrowser.openBrowserAsync(res.payUrl)
+            if(httt == 0){
+                try{
+                    resGHN = await ghnApi.getOrderGHN(orderConfirm, state?.user, getAddress(), getTotalPrice() )
+                }
+                catch(e){}
+                await donhangApi.order(orderRequest)
+                try {
+                    const myMessage = emailUtils.getMessageOrder(state?.user, listSP, getShioAddress)
+
+                    emailUtils.sendEmail(myMessage, state?.user)
+                } catch (error) {
+                    
+                }
+            }
+            if(httt == 1){
+                const res = await paypalUtils.getPayPalLinl(orderRequest, getTotalPrice(), state?.user?.username)
+                await WebBrowser.openBrowserAsync(res)
+            }
+            else if(httt == 2){
+                const res = await getSignature(orderRequest, getTotalPrice(), orderId)
+                await WebBrowser.openBrowserAsync(res.payUrl)
+            }
             navigation.navigate('Home')
         } catch (error) {
             console.log(error)
         }
 
 
+    }
+    const checkVoucher = async()=>{
+        try {
+            const res = await donhangApi.checkVoucher(voucher)
+            setDiscount(res.discount)
+        } catch (error) {
+            console.log(error)
+        }
     }
     return (
         <View>
@@ -151,25 +194,26 @@ export default function ConfirmOrderScreen({route}) {
                         radio_props={[
                             {label: 'Cash     ', value: 0 },
                             {label: 'Paypal   ', value: 1 },
-                            {label: 'Momo', value: 1 }
+                            {label: 'Momo', value: 2 }
                         ]}
                         formHorizontal={true}
                         initial={0}
-                        onPress={()=>{}}
+                        onPress={(value)=>{setHttt(value)}}
                         buttonSize={10}
                         />
                 </View>
             </View>
-            <View style={[styles.subCartContainer, {marginTop:10, paddingVertical:15}]}>
+            <View style={[styles.subCartContainer, {marginTop:10, paddingVertical:10}]}>
                 <TouchableOpacity style={{justifyContent:'space-between', flexDirection:'row'}}>
                     <View style={{ flexDirection:'row'}}>
                         <Icon name='confirmation-number' color='#1293fc' />
                         <Text style={{fontSize:17, color:'#626262', marginLeft:5}}>Voucher discount</Text>   
                     </View>
-                    <View>
-                        <Icon name='navigate-next' color='#808080' />
-                    </View>
                 </TouchableOpacity>
+                <View>
+                    <Input style={{marginBottom:0}} onChangeText={(value)=> setVoucher(value)} />
+                    <Button title='Apply' style={{marginTop:0}} onPress={checkVoucher} />
+                </View> 
             </View>
             {/* <View style={[styles.subCartContainer, {marginTop:10, paddingVertical:10}]}>
                         
@@ -181,19 +225,19 @@ export default function ConfirmOrderScreen({route}) {
                     <Text style={{color:'#616161'}}>{getTotalPrice()} $</Text>
                 </View>
                 <View style={{flexDirection:'row', justifyContent:'space-between', paddingVertical:10}}>
-                    <Text style={{color:'#616161'}}>Money discount</Text>
-                    <Text style={{color:'#616161'}}>0 $</Text>
+                    <Text style={{color:'#616161'}}>Discount percentage</Text>
+                    <Text style={{color:'#616161'}}>{discount * 100} %</Text>
                 </View>
                 <View style={{flexDirection:'row', justifyContent:'space-between'}}>
                     <Text style={{fontSize:18, color:'#383838'}}>Total pay</Text>
-                    <Text style={{fontSize:18, color:'#f74f4f'}}>{getTotalPrice()} $</Text>
+                    <Text style={{fontSize:18, color:'#f74f4f'}}>{getTotalPrice() - getTotalPrice() * discount} $</Text>
                 </View>
             </View>
         </ScrollView>
         <View style={styles.orderNow}>
                <View>
                    <Text style={{fontSize:20}}>Total pay</Text>
-                   <Text style={{color:'tomato', fontSize:17, marginTop:5}}>{getTotalPrice()} $</Text>
+                   <Text style={{color:'tomato', fontSize:17, marginTop:5}}>{getTotalPrice() - getTotalPrice() * discount} $</Text>
                </View>
                <View>
                 <TouchableOpacity onPress={confirmOrder}>

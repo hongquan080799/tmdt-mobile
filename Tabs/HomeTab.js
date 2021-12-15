@@ -10,6 +10,8 @@ import PersonalStack from '../Stacks/PersonalStack';
 import HeaderRight from '../Components/HeaderRight';
 import LoginScreen from '../Screens/LoginScreen'
 import { UserContext } from '../context/UserContext';
+import LoginStack from '../Stacks/LoginStack';
+import ChatScreen from '../Screens/ChatScreen';
 export default function HomeTab() {
     const [state,setState] = useContext(UserContext)
     const Tabs = createBottomTabNavigator()
@@ -30,12 +32,10 @@ export default function HomeTab() {
             headerShown:false
             }} />
           <Tabs.Screen name="Chat"
-            component={HomeScreen}
+            component={ChatScreen}
             options={{
             tabBarIcon: ()=> <Icon name="chat" color='#5F6368' />,
-            tabBarActiveTintColor:'#5F6368',
-            headerTransparent:true,
-            headerRight:HeaderRight
+            tabBarActiveTintColor:'#5F6368'
             }} />
           {/* <Tabs.Screen name="Cart"
          component={CartStack}
@@ -65,7 +65,7 @@ export default function HomeTab() {
          }} 
          />:<Tabs.Screen name="Personal"
          
-         component={LoginScreen}
+         component={LoginStack}
          options={{
           tabBarIcon: ()=> <Icon name="account-circle" color='#5F6368' />,
           tabBarActiveTintColor:'#5F6368',

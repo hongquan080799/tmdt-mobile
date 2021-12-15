@@ -9,10 +9,13 @@ let headers = {
 //loginRequest username password
 export const getLogin = async (loginRequest)=>{
     const url = '/login'
+    console.log(loginRequest)
     try {
         const response = await axiosClient.post(url,loginRequest)
         if(response != null){
             // window.localStorage.setItem('jwt',response.jwt)
+           console.log(response)
+            await AsyncStorage.setItem('jwt',response.jwt)
         }
         return response
     } catch (error) {

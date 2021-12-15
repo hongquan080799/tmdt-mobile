@@ -1,6 +1,6 @@
 import React from 'react'
 import { Icon } from 'react-native-elements'
-import { View, Text , TextInput, StyleSheet, Image, TouchableOpacity} from 'react-native'
+import { View, Text , TextInput, StyleSheet, Image, TouchableOpacity, Platform} from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 export default function Header() {
     const navigation = useNavigation()
@@ -46,7 +46,8 @@ const styles = StyleSheet.create({
       },
       headerContainer:{
           paddingVertical:10,
-          paddingHorizontal:10
+          paddingHorizontal:10,
+          marginTop: Platform.OS == 'ios'? 0 : 20
       },
       photoPicture:{
           width: 40,

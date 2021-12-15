@@ -1,4 +1,4 @@
-import React,{useContext} from 'react'
+import React,{useContext, useState} from 'react'
 import { TouchableOpacity } from 'react-native';
 import { View , Text, SafeAreaView, Image, StyleSheet, TextInput, Alert} from 'react-native'
 import { Button } from 'react-native-elements';
@@ -14,6 +14,13 @@ import { UserContext } from '../context/UserContext';
 export default function LoginScreen() {
     const [state,setState] = useContext(UserContext)
     const navigation = useNavigation()
+    const [login, setLogin] = useState()
+    const handleInputChange = (name, value)=>{
+      setLogin({
+          ...login,
+          [name]:value
+      })
+  }
     const handleLoginGoogle = async ()=>{
         try {
             const result = await Google.logInAsync({
@@ -89,6 +96,23 @@ export default function LoginScreen() {
             alert(`Facebook Login Error: ${message}`);
           }
     }
+    const handleLogin = async()=>{
+      UserApi.getLogin(login)
+              .then(res =>{
+                  UserApi.getUser()
+                  .then(res =>{
+                      UserApi.getUser()
+                      .then(response =>{
+                        console.log(response)
+                        setState({user:response})
+                        navigation.navigate('Home', {screen:'home'})
+                      })
+
+                  })
+                
+              })
+              .catch(err => alert('Login failed !!!'))
+    }
     return (
         <SafeAreaView>
             <View style={{flexDirection:'row', justifyContent:'center', marginTop:'10%', marginBottom:'15%'}}>
@@ -97,10 +121,13 @@ export default function LoginScreen() {
             </View>
             <View style={{paddingHorizontal:15}}>
                 <Text style={{fontSize:19, color:'#616161',marginBottom:10}}>Wellcome !</Text>
-                <TextInput placeholder="Username" style={styles.input} />
-                <TextInput placeholder="Password" style={styles.input} />
+                <TextInput placeholder="Username" value={login?.username} onChangeText={(value) => handleInputChange('username', value)} style={styles.input} />
+                <TextInput placeholder="Password" value={login?.password} secureTextEntry={true} style={styles.input} onChangeText={(value) => handleInputChange('password', value)} />
                 <Button
                 title="Login"
+                onPress={
+                  handleLogin
+                }
                 buttonStyle={{
                     backgroundColor:'#468a58',
                     marginTop:10,
@@ -145,7 +172,7 @@ export default function LoginScreen() {
                 <TouchableOpacity>
                     <Text style={{textAlign:'center', marginBottom:2, color:'#3CB8CF', fontSize:16}}>Forgot password ?</Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=> navigation.navigate('register')}>
                     <Text style={{textAlign:'center',color:'#3CB8CF', fontSize:16}}>Register</Text>
                 </TouchableOpacity>
             </View>
